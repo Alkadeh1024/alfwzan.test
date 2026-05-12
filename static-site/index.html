@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>مركز الفوزان لتحفيظ القرآن الكريم</title>
+  <meta name="description" content="مركز الفوزان لتحفيظ القرآن الكريم - بيت العلم والتلاوة" />
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400;700&family=Tajawal:wght@300;400;500;700;900&family=Amiri:wght@400;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div id="headerSlot"></div>
+  <main>
+    <section class="hero">
+      <div class="container hero-grid">
+        <div class="hero-text">
+          <span class="eyebrow" data-testid="hero-eyebrow">﷽</span>
+          <h1 data-testid="hero-title" data-edit="hero.title">مركز الفوزان لتحفيظ القرآن الكريم</h1>
+          <p class="lead" data-testid="hero-lead" data-edit="hero.lead">بيت يجمع القلوب على كتاب الله، يرعى الناشئة بالتلاوة والحفظ والتجويد، ويغرس فيهم محبة القرآن وأخلاقه.</p>
+          <div class="hero-cta">
+            <a href="#register" class="btn btn-primary" data-testid="hero-register-btn" data-i18n="hero.cta.register">سجّل الآن في الحلقات</a>
+            <a href="#about" class="btn btn-ghost" data-testid="hero-about-btn" data-i18n="hero.cta.about">تعرّف علينا</a>
+          </div>
+          <ul class="hero-stats" data-testid="hero-stats">
+            <li><strong data-edit="stats.students">+250</strong><span data-i18n="stats.students">طالب</span></li>
+            <li><strong data-edit="stats.teachers">+15</strong><span data-i18n="stats.teachers">معلم</span></li>
+            <li><strong data-edit="stats.years">+12</strong><span data-i18n="stats.years">سنة عمل</span></li>
+          </ul>
+        </div>
+        <aside class="hero-card" aria-hidden="true">
+          <div class="ayah-card">
+            <span class="ayah-arabic">خيرُكُم مَن تعلَّمَ القرآنَ وعلَّمَهُ</span>
+            <span class="ayah-ref">الراوي : عثمان بن عفان | المحدث : الألباني | المصدر : صحيح الترمذي</span>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <section id="about" class="section">
+      <div class="container">
+        <div class="section-head">
+          <span class="kicker" data-i18n="about.kicker">من نحن</span>
+          <h2 data-edit="about.title">لمحة عنّا</h2>
+        </div>
+        <div class="about-grid">
+          <div class="about-text">
+            <p data-edit="about.paragraph1"></p>
+            <p data-edit="about.paragraph2"></p>
+            <ul class="features-list" data-testid="features-list">
+              <li><span class="dot"></span><span data-edit="about.feature1"></span></li>
+              <li><span class="dot"></span><span data-edit="about.feature2"></span></li>
+              <li><span class="dot"></span><span data-edit="about.feature3"></span></li>
+              <li><span class="dot"></span><span data-edit="about.feature4"></span></li>
+            </ul>
+          </div>
+          <div class="about-gallery" id="aboutGallery" data-testid="about-gallery"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="register" class="section section-alt">
+      <div class="container">
+        <div class="register-card">
+          <div class="register-text">
+            <span class="kicker" data-i18n="register.kicker">انضم إلينا</span>
+            <h2 data-edit="register.title">سجّل في حلقات الفوزان</h2>
+            <p data-edit="register.text">يسرّنا انضمامك إلى أسرة المركز. اضغط على الزر التالي لفتح نموذج التسجيل وملء بياناتك.</p>
+            <a id="registerLink" href="#" target="_blank" rel="noopener" class="btn btn-primary btn-lg" data-testid="register-link" data-i18n="register.open">فتح نموذج التسجيل</a>
+          </div>
+          <div class="register-aside">
+            <div class="register-step"><span>1</span><p data-i18n="register.step1">املأ نموذج التسجيل</p></div>
+            <div class="register-step"><span>2</span><p data-i18n="register.step2">تحديد الحلقة المناسبة</p></div>
+            <div class="register-step"><span>3</span><p data-i18n="register.step3">بدء رحلة الحفظ</p></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+  <div id="footerSlot"></div>
+  <div id="lightbox" class="lightbox" data-testid="lightbox"><span class="lightbox-close" id="lightboxClose">×</span><div class="lightbox-inner" id="lightboxInner"></div></div>
+  <script src="js/data.js"></script>
+  <script src="js/common.js"></script>
+  <script src="js/index.js"></script>
+</body>
+</html>

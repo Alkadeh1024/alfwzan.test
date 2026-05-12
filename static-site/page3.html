@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>بحث الطلاب — مركز الفوزان</title>
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400;700&family=Tajawal:wght@300;400;500;700;900&family=Amiri:wght@400;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div id="headerSlot"></div>
+  <main>
+    <section class="page-hero">
+      <div class="container">
+        <span class="eyebrow">﷽</span>
+        <h1 data-i18n="page3.title">بحث الطلاب</h1>
+        <p class="lead" data-i18n="page3.lead">ابحث عن طالب باسمه أو رقمه التسلسلي لمعرفة الحضور والتقدير.</p>
+        <div class="date-strip" id="todayStrip" data-testid="today-strip"></div>
+      </div>
+    </section>
+    <div class="container section">
+      <div class="search-card">
+        <p class="muted" style="margin-top:0;margin-bottom:14px;font-size:14px;color:var(--muted)">ابحث عن طالب بكتابة <b>اسمه</b> أو <b>رقمه التسلسلي</b>.</p>
+        <div class="row">
+          <div class="field"><label data-i18n="page3.f.serial">الرقم التسلسلي</label><input type="text" id="qSerial" data-testid="search-serial" data-i18n-ph="page3.ph.serial" placeholder="مثال: 001"/></div>
+          <div class="field"><label data-i18n="page3.f.name">اسم الطالب</label><input type="text" id="qName" data-testid="search-name" data-i18n-ph="page3.ph.name" placeholder="ادخل جزء من الاسم"/></div>
+        </div>
+        <div class="search-actions">
+          <button class="btn btn-primary" id="searchBtn" data-testid="search-btn" data-i18n="page3.btn.search">بحث</button>
+          <button class="btn btn-ghost" id="resetBtn" data-testid="search-reset" data-i18n="page3.btn.reset">مسح</button>
+        </div>
+      </div>
+      <div id="results" data-testid="search-results"></div>
+      <div id="studentDetail" data-testid="student-detail"></div>
+    </div>
+  </main>
+  <div id="footerSlot"></div>
+  <script src="js/data.js"></script>
+  <script src="js/common.js"></script>
+  <script src="js/page3.js"></script>
+</body>
+</html>

@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>الأنشطة — مركز الفوزان</title>
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400;700&family=Tajawal:wght@300;400;500;700;900&family=Amiri:wght@400;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div id="headerSlot"></div>
+  <main>
+    <section class="page-hero">
+      <div class="container">
+        <span class="eyebrow">﷽</span>
+        <h1 data-i18n="page2.title">أنشطة المركز</h1>
+        <p class="lead" data-i18n="page2.lead">تابع الأنشطة الحالية والقادمة، مع عدّاد تنازلي حتى موعد كل نشاط.</p>
+      </div>
+    </section>
+    <div class="container section">
+      <h2 class="section-title" data-i18n="page2.upcoming">الأنشطة القادمة</h2>
+      <div id="upcomingGrid" class="activity-grid" data-testid="upcoming-grid"></div>
+      <div id="upEmpty" class="empty-state" style="display:none" data-i18n="page2.empty.up">لا توجد أنشطة قادمة حالياً.</div>
+
+      <h2 class="section-title" style="margin-top:48px" data-i18n="page2.current">الأنشطة الحالية</h2>
+      <div id="currentGrid" class="activity-grid" data-testid="current-grid"></div>
+      <div id="curEmpty" class="empty-state" style="display:none" data-i18n="page2.empty.cur">لا توجد أنشطة حالية الآن.</div>
+
+      <h2 class="section-title" style="margin-top:48px" data-i18n="page2.past">الأنشطة السابقة</h2>
+      <div id="pastGrid" class="activity-grid" data-testid="past-grid"></div>
+      <div id="pastEmpty" class="empty-state" style="display:none" data-i18n="page2.empty.past">لا توجد أنشطة سابقة.</div>
+    </div>
+  </main>
+  <div id="footerSlot"></div>
+  <script src="js/data.js"></script>
+  <script src="js/common.js"></script>
+  <script src="js/page2.js"></script>
+</body>
+</html>

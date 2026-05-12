@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>الإنجازات — مركز الفوزان</title>
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400;700&family=Tajawal:wght@300;400;500;700;900&family=Amiri:wght@400;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div id="headerSlot"></div>
+  <main>
+    <section class="page-hero">
+      <div class="container">
+        <span class="eyebrow">﷽</span>
+        <h1 data-i18n="page1.title">إنجازاتنا</h1>
+        <p class="lead" data-i18n="page1.lead">تكريم الطلاب المثاليين، شهادات، وصور من فعاليات المركز ومسابقاته.</p>
+      </div>
+    </section>
+    <div class="container section">
+      <section class="ach-section">
+        <h2 class="section-title" data-i18n="page1.cat.certificates">الشهادات</h2>
+        <div id="achCert" class="gallery-grid" data-testid="ach-certificates"></div>
+        <div id="achCertEmpty" class="empty-state" style="display:none" data-i18n="page1.empty">لا توجد إنجازات منشورة بعد.</div>
+      </section>
+      <section class="ach-section" style="margin-top:48px">
+        <h2 class="section-title" data-i18n="page1.cat.honors">التكريمات</h2>
+        <div id="achHonor" class="gallery-grid" data-testid="ach-honors"></div>
+        <div id="achHonorEmpty" class="empty-state" style="display:none" data-i18n="page1.empty">لا توجد إنجازات منشورة بعد.</div>
+      </section>
+      <section class="ach-section" style="margin-top:48px">
+        <h2 class="section-title" data-i18n="page1.cat.programs">البرامج</h2>
+        <div id="achProgram" class="gallery-grid" data-testid="ach-programs"></div>
+        <div id="achProgramEmpty" class="empty-state" style="display:none" data-i18n="page1.empty">لا توجد إنجازات منشورة بعد.</div>
+      </section>
+    </div>
+  </main>
+  <div id="footerSlot"></div>
+  <div id="lightbox" class="lightbox" data-testid="lightbox"><span class="lightbox-close" id="lightboxClose">×</span><div class="lightbox-inner" id="lightboxInner"></div></div>
+  <script src="js/data.js"></script>
+  <script src="js/common.js"></script>
+  <script src="js/page1.js"></script>
+</body>
+</html>

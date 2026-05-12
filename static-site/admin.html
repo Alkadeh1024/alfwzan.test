@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>لوحة المشرف — مركز الفوزان</title>
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400;700&family=Tajawal:wght@300;400;500;700;900&family=Amiri:wght@400;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div id="headerSlot"></div>
+  <main>
+    <div class="container">
+      <!-- Login view -->
+      <div id="loginView" class="auth-wrap">
+        <div class="auth-card">
+          <span class="eyebrow" style="text-align:center;display:block">﷽</span>
+          <h2>تسجيل دخول المشرف</h2>
+          <p class="muted">أدخل بيانات الدخول للمتابعة</p>
+          <div class="field"><label>الحساب</label>
+            <input type="text" id="user" placeholder="alfwzan@admin" data-testid="login-user" autocomplete="username"/></div>
+          <div class="field"><label>كلمة المرور</label>
+            <input type="password" id="pass" data-testid="login-pass" autocomplete="current-password"/></div>
+          <button class="btn btn-primary btn-block" id="loginBtn" data-testid="login-btn">دخول</button>
+          <p id="loginErr" class="error-msg" data-testid="login-err">بيانات الدخول غير صحيحة.</p>
+        </div>
+      </div>
+
+      <!-- Admin dashboard -->
+      <div id="dashView" style="display:none">
+        <div class="dash-topbar">
+          <div>
+            <h1 class="dash-title">لوحة المشرف الأساسي</h1>
+            <p class="muted" style="margin:4px 0 0">يمكنك تعديل كل محتوى الموقع. اضغط <b>تصدير site.json</b> لتنزيل ملف البيانات ورفعه على المستودع.</p>
+          </div>
+          <div class="topbar-actions">
+            <button class="btn btn-accent" id="publishBtn" data-testid="publish-btn">نشر التغييرات إلى GitHub</button>
+            <button class="btn btn-ghost btn-sm" id="exportBtn" data-testid="export-btn">تصدير ملف</button>
+            <input type="file" id="importFile" accept="application/json" style="display:none"/>
+            <button class="btn btn-ghost btn-sm" id="importBtn" data-testid="import-btn">استيراد ملف</button>
+            <button class="btn btn-ghost btn-sm" id="logoutBtn" data-testid="logout-btn">خروج</button>
+          </div>
+        </div>
+        <div id="publishStatus" class="publish-status" data-testid="publish-status"></div>
+        <div class="dash">
+          <aside class="dash-side" data-testid="dash-side">
+            <a href="#texts" class="active" data-tab="texts">نصوص الموقع</a>
+            <a href="#about" data-tab="about">صور وفيديوهات (لمحة عنا)</a>
+            <a href="#ach" data-tab="ach">الإنجازات</a>
+            <a href="#act" data-tab="act">الأنشطة</a>
+            <a href="#halaqat" data-tab="halaqat">الحلقات</a>
+            <a href="#students" data-tab="students">الطلاب</a>
+            <a href="#settings" data-tab="settings">الإعدادات والشعار</a>
+          </aside>
+          <section class="dash-main">
+            <div class="tab active" id="tab-texts">
+              <h2>نصوص الموقع</h2>
+              <p class="muted">عدّل النصوص الظاهرة في الموقع.</p>
+              <div id="textsForm" class="texts-form"></div>
+              <button class="btn btn-primary" id="textsSave" data-testid="texts-save">حفظ النصوص</button>
+            </div>
+
+            <div class="tab" id="tab-about">
+              <h2>صور وفيديوهات قسم «لمحة عنا»</h2>
+              <p class="muted">الصور تظهر كمعرض. اضغط على الصورة لتكبيرها.</p>
+              <div class="row">
+                <div class="field"><label>ملف صورة أو فيديو</label><input type="file" id="aboutFile" accept="image/*,video/*" data-testid="about-file"/></div>
+                <div class="field"><label>أو رابط فيديو (YouTube/خارجي)</label><input type="text" id="aboutVideoUrl" placeholder="https://..." data-testid="about-video-url"/></div>
+              </div>
+              <div class="field"><label>وصف (اختياري)</label><input type="text" id="aboutCaption" data-testid="about-caption"/></div>
+              <button class="btn btn-primary" id="aboutAdd" data-testid="about-add">إضافة</button>
+              <div id="aboutList" class="admin-grid" style="margin-top:18px" data-testid="about-list"></div>
+            </div>
+
+            <div class="tab" id="tab-ach">
+              <h2>الإنجازات والشهادات</h2>
+              <div class="row">
+                <div class="field"><label>التصنيف</label><select id="achCategory" data-testid="ach-category">
+                  <option value="certificates">الشهادات</option>
+                  <option value="honors">التكريمات</option>
+                  <option value="programs">البرامج</option>
+                </select></div>
+                <div class="field"><label>ملف صورة أو فيديو</label><input type="file" id="achFile" accept="image/*,video/*" data-testid="ach-file"/></div>
+                <div class="field"><label>أو رابط فيديو</label><input type="text" id="achVideoUrl" placeholder="https://..." data-testid="ach-video-url"/></div>
+              </div>
+              <div class="row">
+                <div class="field"><label>العنوان</label><input type="text" id="achTitle" data-testid="ach-title"/></div>
+                <div class="field"><label>الوصف</label><input type="text" id="achDesc" data-testid="ach-desc"/></div>
+              </div>
+              <button class="btn btn-primary" id="achAdd" data-testid="ach-add">إضافة</button>
+              <div id="achList" class="admin-grid" style="margin-top:18px" data-testid="ach-list"></div>
+            </div>
+
+            <div class="tab" id="tab-act">
+              <h2>الأنشطة</h2>
+              <div class="row">
+                <div class="field"><label>عنوان النشاط</label><input type="text" id="actTitle" data-testid="act-title"/></div>
+                <div class="field"><label>تاريخ ووقت البداية</label><input type="datetime-local" id="actStart" data-testid="act-start"/></div>
+                <div class="field"><label>تاريخ ووقت النهاية (اختياري)</label><input type="datetime-local" id="actEnd" data-testid="act-end"/></div>
+              </div>
+              <div class="field"><label>وصف</label><textarea id="actDesc" rows="2" data-testid="act-desc"></textarea></div>
+              <button class="btn btn-primary" id="actAdd" data-testid="act-add">إضافة نشاط</button>
+              <div id="actList" style="margin-top:18px" data-testid="act-list"></div>
+            </div>
+
+            <div class="tab" id="tab-halaqat">
+              <h2>الحلقات</h2>
+              <div class="row">
+                <div class="field"><label>اسم الحلقة</label><input type="text" id="halaqaName" data-testid="halaqa-name"/></div>
+                <div class="field"><label>المرحلة العامة</label>
+                  <select id="halaqaLevel" data-testid="halaqa-level"><option>ابتدائي</option><option>متوسط</option><option>ثانوي</option></select></div>
+                <div class="field"><label>الصف المستهدف (اختياري)</label>
+                  <select id="halaqaTargetGrade" data-testid="halaqa-target-grade">
+                    <option value="">— غير محدد —</option>
+                    <option>الأول الابتدائي</option>
+                    <option>الثاني الابتدائي</option>
+                    <option>الثالث الابتدائي</option>
+                    <option>الرابع الابتدائي</option>
+                    <option>الخامس الابتدائي</option>
+                    <option>السادس الابتدائي</option>
+                    <option>الأول المتوسط</option>
+                    <option>الثاني المتوسط</option>
+                    <option>الثالث المتوسط</option>
+                    <option>الأول الثانوي</option>
+                    <option>الثاني الثانوي</option>
+                    <option>الثالث الثانوي</option>
+                    <option>الثانوي</option>
+                  </select></div>
+                <div class="field"><label>اسم الشيخ</label><input type="text" id="halaqaSheikh" data-testid="halaqa-sheikh"/></div>
+              </div>
+              <button class="btn btn-primary" id="halaqaAdd" data-testid="halaqa-add">إضافة حلقة</button>
+              <div id="halaqaList" style="margin-top:18px" data-testid="halaqa-list"></div>
+            </div>
+
+            <div class="tab" id="tab-students">
+              <h2>الطلاب</h2>
+              <p class="muted">يقوم المشرف الأساسي فقط بإضافة الطلاب وحذفهم.</p>
+              <div class="row">
+                <div class="field"><label>اسم الطالب</label><input type="text" id="stuName" data-testid="stu-name"/></div>
+                <div class="field"><label>الرقم التسلسلي</label><input type="text" id="stuSerial" data-testid="stu-serial"/></div>
+              </div>
+              <div class="row">
+                <div class="field"><label>الحلقة</label><select id="stuHalaqa" data-testid="stu-halaqa"></select></div>
+                <div class="field"><label>الصف الدراسي</label>
+                  <select id="stuGrade" data-testid="stu-grade">
+                    <option value="">— اختر الصف —</option>
+                    <optgroup label="المرحلة الابتدائية">
+                      <option>الأول الابتدائي</option>
+                      <option>الثاني الابتدائي</option>
+                      <option>الثالث الابتدائي</option>
+                      <option>الرابع الابتدائي</option>
+                      <option>الخامس الابتدائي</option>
+                      <option>السادس الابتدائي</option>
+                    </optgroup>
+                    <optgroup label="المرحلة المتوسطة">
+                      <option>الأول المتوسط</option>
+                      <option>الثاني المتوسط</option>
+                      <option>الثالث المتوسط</option>
+                    </optgroup>
+                    <optgroup label="المرحلة الثانوية">
+                      <option>الأول الثانوي</option>
+                      <option>الثاني الثانوي</option>
+                      <option>الثالث الثانوي</option>
+                    </optgroup>
+                  </select>
+                </div>
+              </div>
+              <button class="btn btn-primary" id="stuAdd" data-testid="stu-add">إضافة طالب</button>
+              <input type="text" id="stuSearchAdmin" placeholder="بحث..." class="search-input" style="margin-top:18px" data-testid="stu-search-admin"/>
+              <div id="stuList" style="margin-top:12px" data-testid="stu-list"></div>
+            </div>
+
+            <div class="tab" id="tab-settings">
+              <h2>الإعدادات العامة</h2>
+              <div class="field"><label>اسم المركز (يظهر في الرأس)</label><input type="text" id="setName" data-testid="set-name"/></div>
+              <div class="field"><label>رابط نموذج التسجيل</label><input type="text" id="setRegisterUrl" placeholder="https://forms.google.com/..." data-testid="set-register-url"/></div>
+              <div class="field"><label>الشعار (يظهر أعلى يمين الموقع)</label>
+                <input type="file" id="logoFile" accept="image/*" data-testid="set-logo-file"/>
+                <div class="logo-preview" id="logoPreview"></div>
+              </div>
+              <button class="btn btn-primary" id="settingsSave" data-testid="settings-save">حفظ الإعدادات</button>
+
+              <hr style="margin:34px 0;border:0;border-top:1px solid var(--border)"/>
+              <h2>تحميل البيانات الأولية</h2>
+              <p class="muted">يستبدل كل البيانات المحلية (الحلقات والطلاب والإنجازات والأنشطة...) بالبيانات الموجودة في ملف <code>data/site.json</code> الموجود على السيرفر. مفيد عند أول إعداد أو لإعادة تعيين البيانات.</p>
+              <button class="btn btn-danger" id="resetFromServerBtn" data-testid="reset-from-server-btn">تحميل البيانات من السيرفر (يحذف كل التعديلات المحلية)</button>
+
+              <hr style="margin:34px 0;border:0;border-top:1px solid var(--border)"/>
+              <h2>إعدادات النشر على GitHub</h2>
+              <p class="muted">حتى يُحفَظ كل ما تضيفه (طلاب، صور، حلقات...) داخل المستودع تلقائياً ولا يختفي إذا عدّلت ملفات الموقع. تحتاج إنشاء رمز شخصي (Personal Access Token) من <a href="https://github.com/settings/tokens?type=beta" target="_blank" style="color:var(--primary);text-decoration:underline">صفحة GitHub Tokens</a> بصلاحية <b>Contents: Read & Write</b> على مستودعك فقط.</p>
+              <div class="row">
+                <div class="field"><label>اسم المستخدم على GitHub</label><input type="text" id="ghUser" placeholder="username" data-testid="gh-user"/></div>
+                <div class="field"><label>اسم المستودع</label><input type="text" id="ghRepo" placeholder="alfwzan-site" data-testid="gh-repo"/></div>
+                <div class="field"><label>الفرع</label><input type="text" id="ghBranch" value="main" data-testid="gh-branch"/></div>
+              </div>
+              <div class="field"><label>الرمز (Personal Access Token)</label><input type="password" id="ghPat" placeholder="ghp_..." data-testid="gh-pat" autocomplete="off"/></div>
+              <div style="display:flex;gap:10px;flex-wrap:wrap">
+                <button class="btn btn-primary" id="ghSave" data-testid="gh-save">حفظ بيانات النشر</button>
+                <button class="btn btn-ghost" id="ghTest" data-testid="gh-test">اختبار الاتصال</button>
+                <label style="display:inline-flex;align-items:center;gap:6px;padding:0 10px;color:var(--muted);font-size:14px">
+                  <input type="checkbox" id="ghAuto" data-testid="gh-auto"/>
+                  نشر تلقائي عند كل تعديل
+                </label>
+              </div>
+              <p class="muted" style="margin-top:16px;font-size:13px">ملاحظة: الرمز يُحفظ محلياً في متصفحك فقط (localStorage على هذا الجهاز). لا يُرسل لأي طرف غير GitHub مباشرة. يُنصَح باستخدام Fine-grained PAT بصلاحية Contents: Read & Write على مستودع الموقع فقط، وإلغائه فوراً عند الحاجة.</p>
+            </div>
+          </section>
+        </div>
+      </div>
+
+      <!-- Sheikh dashboard (limited) -->
+      <div id="sheikhView" style="display:none">
+        <div class="dash-topbar">
+          <div>
+            <h1 class="dash-title">لوحة الشيخ — التحضير والتقدير</h1>
+            <p class="muted" style="margin:4px 0 0">سجِّل الحضور والتقدير لطلاب حلقتك. <b>الحفظ يتم تلقائياً</b> فور الضغط على أي زر.</p>
+          </div>
+          <div class="topbar-actions">
+            <span class="pill pill-ok" data-testid="sheikh-autosave-pill">✓ الحفظ التلقائي مفعَّل</span>
+            <button class="btn btn-ghost btn-sm" id="sheikhLogoutBtn" data-testid="sheikh-logout-btn">خروج</button>
+          </div>
+        </div>
+        <div class="sheikh-wrap">
+          <div class="field"><label>اختر الحلقة</label>
+            <select id="sheikhHalaqa" data-testid="sheikh-halaqa-select"></select></div>
+          <div class="field"><label>بحث باسم الطالب داخل الحلقة</label>
+            <input type="text" id="sheikhStudentSearch" placeholder="ادخل جزء من اسم الطالب" data-testid="sheikh-student-search"/></div>
+          <div class="field"><label>تاريخ التحضير</label>
+            <input type="date" id="sheikhDate" data-testid="sheikh-date"/>
+            <div class="date-display" id="sheikhDateLabel" data-testid="sheikh-date-label"></div>
+          </div>
+          <div id="sheikhStudents" data-testid="sheikh-students"></div>
+        </div>
+      </div>
+    </div>
+  </main>
+  <div id="footerSlot"></div>
+  <script src="js/data.js"></script>
+  <script src="js/common.js"></script>
+  <script src="js/admin.js"></script>
+</body>
+</html>
