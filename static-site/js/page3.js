@@ -42,8 +42,11 @@ function doSearch() {
     document.getElementById('studentDetail').innerHTML = '';
     return;
   }
+  // Serial = exact match (allow user to type "1" to match "001")
+  const sNorm = sQ.replace(/^0+/, '');
   const list = (Store.data.students || []).filter(s => {
-    const okS = !sQ || (s.serial || '').toLowerCase().includes(sQ);
+    const stuSerial = (s.serial || '').toLowerCase().replace(/^0+/, '');
+    const okS = !sQ || stuSerial === sNorm;
     const okN = !nQ || (s.name || '').toLowerCase().includes(nQ);
     return okS && okN;
   });
