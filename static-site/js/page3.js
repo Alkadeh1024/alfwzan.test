@@ -42,9 +42,11 @@ function doSearch() {
     document.getElementById('studentDetail').innerHTML = '';
     return;
   }
-  // Serial = exact match
+  // Strict exact match (ignoring any leading zeros on either side)
+  const stripZ = (s) => String(s || '').replace(/^0+(?=\d)/, '');
+  const sNorm = stripZ(sQ);
   const list = (Store.data.students || []).filter(s => {
-    const okS = !sQ || (s.serial || '').toLowerCase() === sQ;
+    const okS = !sQ || stripZ(s.serial).toLowerCase() === sNorm;
     const okN = !nQ || (s.name || '').toLowerCase().includes(nQ);
     return okS && okN;
   });
