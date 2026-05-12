@@ -321,7 +321,6 @@ function renderHeader() {
     ? `<img src="${escapeHtml(logo)}" alt="logo"/>`
     : 'ف';
   slot.innerHTML = `
-    <div class="bismillah" data-testid="bismillah-ribbon">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>
     <header class="site-header">
       <div class="container header-row">
         <a href="index.html" class="brand" data-testid="brand">
