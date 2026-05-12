@@ -53,6 +53,7 @@
             <a href="#act" data-tab="act">الأنشطة</a>
             <a href="#halaqat" data-tab="halaqat">الحلقات</a>
             <a href="#students" data-tab="students">الطلاب</a>
+            <a href="#reports" data-tab="reports">التقارير الشهرية</a>
             <a href="#settings" data-tab="settings">الإعدادات والشعار</a>
           </aside>
           <section class="dash-main">
@@ -172,6 +173,22 @@
               <input type="text" id="stuSearchAdmin" placeholder="بحث..." class="search-input" style="margin-top:18px" data-testid="stu-search-admin"/>
               <div id="stuList" style="margin-top:12px" data-testid="stu-list"></div>
             </div>
+
+            <div class="tab" id="tab-reports">
+              <h2>التقارير الشهرية</h2>
+              <p class="muted">اختر الشهر وحلقة معينة (أو «كل الحلقات») لتحميل ملف Excel/CSV يحتوي ملخص حضور كل طالب وتوزيع تقديرات الحفظ.</p>
+              <div class="row">
+                <div class="field"><label>الشهر</label><input type="month" id="reportMonthAdmin" data-testid="report-month-admin"/></div>
+                <div class="field"><label>الحلقة (اختياري)</label>
+                  <select id="reportHalaqaAdmin" data-testid="report-halaqa-admin"><option value="">— كل الحلقات —</option></select></div>
+              </div>
+              <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px">
+                <button class="btn btn-primary" id="reportDownloadAdmin" data-testid="report-download-admin">⤓ تحميل التقرير المُجمَّع (ملف واحد)</button>
+                <button class="btn btn-ghost" id="reportPreviewAdmin" data-testid="report-preview-admin">عرض الملخص في الصفحة</button>
+              </div>
+              <div id="reportSummaryAdmin" class="report-summary" data-testid="report-summary-admin"></div>
+            </div>
+
 
             <div class="tab" id="tab-settings">
               <h2>الإعدادات العامة</h2>

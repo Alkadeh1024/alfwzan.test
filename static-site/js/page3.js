@@ -42,11 +42,9 @@ function doSearch() {
     document.getElementById('studentDetail').innerHTML = '';
     return;
   }
-  // Serial = exact match (allow user to type "1" to match "001")
-  const sNorm = sQ.replace(/^0+/, '');
+  // Serial = exact match
   const list = (Store.data.students || []).filter(s => {
-    const stuSerial = (s.serial || '').toLowerCase().replace(/^0+/, '');
-    const okS = !sQ || stuSerial === sNorm;
+    const okS = !sQ || (s.serial || '').toLowerCase() === sQ;
     const okN = !nQ || (s.name || '').toLowerCase().includes(nQ);
     return okS && okN;
   });
@@ -99,6 +97,8 @@ function showStudent(id) {
       <span>${hifzTag}</span>
     </div>`;
   }).join('');
+  const now = new Date();
+  const ym = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
   detail.innerHTML = `<div class="detail-panel" data-testid="detail-${s.serial}">
     <div class="detail-head">
       <div>
@@ -118,7 +118,42 @@ function showStudent(id) {
       </div>
       ${rows}
     </div>
+    <div class="month-report-block">
+      <h3>تحميل السجل الشهري</h3>
+      <p class="muted" style="margin:0 0 12px;font-size:14px">اختر الشهر لتحميل ملف Excel/CSV يحتوي تفاصيل حضور الطالب وتقديراته خلال الشهر مع نسبة الحضور.</p>
+      <div class="row" style="margin-bottom:10px">
+        <div class="field"><label>الشهر</label><input type="month" id="reportMonth_${s.id}" value="${ym}" data-testid="report-month-${s.serial}"/></div>
+        <div class="field" style="justify-content:flex-end">
+          <button class="btn btn-primary" data-testid="report-download-${s.serial}" data-dl-stu="${s.id}">⤓ تحميل تقرير الشهر</button>
+        </div>
+      </div>
+      <div class="month-summary" id="reportSummary_${s.id}"></div>
+    </div>
   </div>`;
+  // Auto-render summary + download binding
+  const sumEl = document.getElementById('reportSummary_' + s.id);
+  const monthEl = document.getElementById('reportMonth_' + s.id);
+  const refreshSummary = () => {
+    const [yy, mm] = monthEl.value.split('-').map(n => parseInt(n, 10));
+    if (!yy || !mm) { sumEl.innerHTML = ''; return; }
+    const st = studentMonthStats(s, yy, mm);
+    sumEl.innerHTML = `
+      <div class="summary-grid">
+        <div class="sg-item"><span class="sg-num">${st.totalWorkingDays}</span><span class="sg-lbl">أيام العمل</span></div>
+        <div class="sg-item"><span class="sg-num">${st.present}</span><span class="sg-lbl">حضور</span></div>
+        <div class="sg-item"><span class="sg-num">${st.absent}</span><span class="sg-lbl">غياب</span></div>
+        <div class="sg-item sg-pct"><span class="sg-num">${st.pct}%</span><span class="sg-lbl">نسبة الحضور</span></div>
+      </div>`;
+  };
+  monthEl.addEventListener('change', refreshSummary);
+  refreshSummary();
+  detail.querySelector(`[data-dl-stu="${s.id}"]`).addEventListener('click', () => {
+    const [yy, mm] = monthEl.value.split('-').map(n => parseInt(n, 10));
+    if (!yy || !mm) return;
+    const { csv } = buildStudentMonthCSV(s, h, yy, mm);
+    const fname = `report_${s.serial}_${s.name.replace(/\s+/g, '_')}_${yy}-${String(mm).padStart(2, '0')}.csv`;
+    downloadCSV(fname, csv);
+  });
   detail.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 

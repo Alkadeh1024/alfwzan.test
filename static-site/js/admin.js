@@ -252,6 +252,11 @@ function bindAdminDashboard() {
   document.getElementById('publishBtn')?.addEventListener('click', () => GH.publish(false));
   document.getElementById('ghSave')?.addEventListener('click', saveGhConfig);
   document.getElementById('ghTest')?.addEventListener('click', () => GH.test());
+  // Reports
+  document.getElementById('reportDownloadAdmin')?.addEventListener('click', downloadAdminMonthReport);
+  document.getElementById('reportPreviewAdmin')?.addEventListener('click', renderAdminReportSummary);
+  document.getElementById('reportMonthAdmin')?.addEventListener('change', renderAdminReportSummary);
+  document.getElementById('reportHalaqaAdmin')?.addEventListener('change', renderAdminReportSummary);
   // Reset from server
   document.getElementById('resetFromServerBtn')?.addEventListener('click', resetFromServer);
 }
@@ -272,6 +277,7 @@ async function resetFromServer() {
   }
 }
 
+// ---- Texts ----
 function initAdminDashboard() {
   renderTextsForm();
   renderAboutListAdmin();
@@ -281,8 +287,124 @@ function initAdminDashboard() {
   renderStudentsAdmin();
   renderSettings();
   renderGhSettings();
+  initAdminReportsTab();
   GH._dirty = false;
   GH.renderStatus();
+}
+
+// ---- Admin: Reports ----
+function initAdminReportsTab() {
+  const monthEl = document.getElementById('reportMonthAdmin');
+  if (!monthEl) return;
+  const now = new Date();
+  monthEl.value = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+  const hSel = document.getElementById('reportHalaqaAdmin');
+  if (hSel) {
+    hSel.innerHTML = '<option value="">— كل الحلقات —</option>' +
+      (Store.data.halaqat || []).map(h => `<option value="${h.id}">${escapeHtml(h.name)}</option>`).join('');
+  }
+}
+
+function _adminReportSelection() {
+  const monthEl = document.getElementById('reportMonthAdmin');
+  if (!monthEl || !monthEl.value) return null;
+  const [y, m] = monthEl.value.split('-').map(n => parseInt(n, 10));
+  const hid = document.getElementById('reportHalaqaAdmin').value;
+  const halaqat = Store.data.halaqat || [];
+  let students = (Store.data.students || []).slice();
+  if (hid) students = students.filter(s => s.halaqaId === hid);
+  return { y, m, hid, halaqat, students };
+}
+
+function buildAdminMonthCSV(y, m, students, halaqat) {
+  const lines = [];
+  lines.push(csvRow(['مركز الفوزان لتحفيظ القرآن الكريم - تقرير شهري مُجمَّع']));
+  lines.push(csvRow(['الشهر', `${MONTH_NAMES_AR[m - 1]} ${y}`]));
+  lines.push(csvRow(['عدد الطلاب', students.length]));
+  lines.push('');
+  lines.push(csvRow([
+    'الرقم', 'الاسم', 'الحلقة', 'المرحلة',
+    'أيام تم تسجيلها', 'حضور', 'غياب', 'نسبة الحضور %',
+    'ممتاز', 'جيد جدا', 'جيد', 'مقبول', 'لم يحفظ'
+  ]));
+  const totals = { marked: 0, present: 0, absent: 0, mumtaz: 0, jvg: 0, jyd: 0, maq: 0, no: 0 };
+  students.forEach(s => {
+    const h = halaqat.find(x => x.id === s.halaqaId);
+    const st = studentMonthStats(s, y, m);
+    totals.marked += st.marked; totals.present += st.present; totals.absent += st.absent;
+    totals.mumtaz += st.gradeCounts['ممتاز']; totals.jvg += st.gradeCounts['جيد جدا'];
+    totals.jyd += st.gradeCounts['جيد']; totals.maq += st.gradeCounts['مقبول']; totals.no += st.gradeCounts['لم يحفظ'];
+    lines.push(csvRow([
+      s.serial, s.name, h ? h.name : '—', h ? h.level : '—',
+      st.marked, st.present, st.absent, st.pct,
+      st.gradeCounts['ممتاز'], st.gradeCounts['جيد جدا'],
+      st.gradeCounts['جيد'], st.gradeCounts['مقبول'], st.gradeCounts['لم يحفظ']
+    ]));
+  });
+  lines.push('');
+  const overallPct = totals.marked > 0 ? Math.round((totals.present / totals.marked) * 100) : 0;
+  const totalGrades = totals.mumtaz + totals.jvg + totals.jyd + totals.maq + totals.no;
+  const pctOf = (n) => totalGrades > 0 ? Math.round((n / totalGrades) * 100) + '%' : '—';
+  lines.push(csvRow(['الملخص العام', '']));
+  lines.push(csvRow(['إجمالي أيام التحضير', totals.marked]));
+  lines.push(csvRow(['إجمالي الحضور', totals.present]));
+  lines.push(csvRow(['إجمالي الغياب', totals.absent]));
+  lines.push(csvRow(['نسبة الحضور العامة', overallPct + '%']));
+  lines.push('');
+  lines.push(csvRow(['توزيع التقديرات', 'العدد', 'النسبة']));
+  lines.push(csvRow(['ممتاز', totals.mumtaz, pctOf(totals.mumtaz)]));
+  lines.push(csvRow(['جيد جدا', totals.jvg, pctOf(totals.jvg)]));
+  lines.push(csvRow(['جيد', totals.jyd, pctOf(totals.jyd)]));
+  lines.push(csvRow(['مقبول', totals.maq, pctOf(totals.maq)]));
+  lines.push(csvRow(['لم يحفظ', totals.no, pctOf(totals.no)]));
+  return { csv: lines.join('\n'), totals, totalGrades, overallPct };
+}
+
+function downloadAdminMonthReport() {
+  const sel = _adminReportSelection();
+  if (!sel) { alert('اختر الشهر أولاً'); return; }
+  const { y, m, hid, halaqat, students } = sel;
+  if (!students.length) { alert('لا يوجد طلاب لهذا الفلتر'); return; }
+  const { csv } = buildAdminMonthCSV(y, m, students, halaqat);
+  const h = halaqat.find(x => x.id === hid);
+  const suffix = h ? `_${h.name.replace(/\s+/g, '_')}` : '_كل_الحلقات';
+  const fname = `admin_report_${y}-${String(m).padStart(2, '0')}${suffix}.csv`;
+  downloadCSV(fname, csv);
+}
+
+function renderAdminReportSummary() {
+  const root = document.getElementById('reportSummaryAdmin');
+  if (!root) return;
+  const sel = _adminReportSelection();
+  if (!sel) { root.innerHTML = ''; return; }
+  const { y, m, halaqat, students } = sel;
+  if (!students.length) { root.innerHTML = '<div class="empty-state">لا يوجد طلاب لهذا الفلتر.</div>'; return; }
+  const { totals, totalGrades, overallPct } = buildAdminMonthCSV(y, m, students, halaqat);
+  const pctOf = (n) => totalGrades > 0 ? Math.round((n / totalGrades) * 100) : 0;
+  root.innerHTML = `
+    <div class="summary-grid" style="margin-top:6px">
+      <div class="sg-item"><span class="sg-num">${students.length}</span><span class="sg-lbl">عدد الطلاب</span></div>
+      <div class="sg-item"><span class="sg-num">${totals.present}</span><span class="sg-lbl">حضور</span></div>
+      <div class="sg-item"><span class="sg-num">${totals.absent}</span><span class="sg-lbl">غياب</span></div>
+      <div class="sg-item sg-pct"><span class="sg-num">${overallPct}%</span><span class="sg-lbl">نسبة الحضور</span></div>
+    </div>
+    <h3 style="margin-top:22px;color:var(--primary)">توزيع تقديرات الحفظ</h3>
+    <div class="grade-bars">
+      ${[
+        { label: 'ممتاز', n: totals.mumtaz, cls: 'g-mumtaz' },
+        { label: 'جيد جدا', n: totals.jvg, cls: 'g-jvg' },
+        { label: 'جيد', n: totals.jyd, cls: 'g-jyd' },
+        { label: 'مقبول', n: totals.maq, cls: 'g-maq' },
+        { label: 'لم يحفظ', n: totals.no, cls: 'g-no' }
+      ].map(g => `
+        <div class="grade-bar">
+          <span class="gb-lbl">${g.label}</span>
+          <div class="gb-track"><div class="gb-fill tag ${g.cls}" style="width:${pctOf(g.n)}%"></div></div>
+          <span class="gb-val">${g.n} (${pctOf(g.n)}%)</span>
+        </div>
+      `).join('')}
+    </div>
+  `;
 }
 
 // ---- Texts ----
@@ -702,7 +824,9 @@ function renderSheikhStudents() {
     // Backward compat: old 'grade' field → gradeHifz
     const gReview = rec.gradeReview || '';
     const gHifz   = rec.gradeHifz != null ? rec.gradeHifz : (rec.grade || '');
-    return `<div class="sheikh-row" data-id="${s.id}">
+    const gradesDisabled = present === false;
+    const dimClass = gradesDisabled ? ' grades-locked' : '';
+    return `<div class="sheikh-row${dimClass}" data-id="${s.id}">
       <div class="sheikh-row-head">
         <div>
           <div class="stu-name">${escapeHtml(s.name)}</div>
@@ -716,15 +840,16 @@ function renderSheikhStudents() {
       <div class="sheikh-grade-block">
         <div class="grade-label"><span class="grade-tag-label tag-review">مراجعة</span></div>
         <div class="sheikh-status-btns" data-kind="gradeReview">
-          ${GRADES.map(g => `<button class="${gReview===g?'active':''}" data-v="${escapeHtml(g)}" data-testid="rev-${s.serial}-${escapeHtml(g)}">${escapeHtml(g)}</button>`).join('')}
+          ${GRADES.map(g => `<button class="${gReview===g?'active':''}" data-v="${escapeHtml(g)}" ${gradesDisabled?'disabled':''} data-testid="rev-${s.serial}-${escapeHtml(g)}">${escapeHtml(g)}</button>`).join('')}
         </div>
       </div>
       <div class="sheikh-grade-block">
         <div class="grade-label"><span class="grade-tag-label tag-hifz">حفظ</span></div>
         <div class="sheikh-status-btns" data-kind="gradeHifz">
-          ${GRADES.map(g => `<button class="${gHifz===g?'active':''}" data-v="${escapeHtml(g)}" data-testid="hifz-${s.serial}-${escapeHtml(g)}">${escapeHtml(g)}</button>`).join('')}
+          ${GRADES.map(g => `<button class="${gHifz===g?'active':''}" data-v="${escapeHtml(g)}" ${gradesDisabled?'disabled':''} data-testid="hifz-${s.serial}-${escapeHtml(g)}">${escapeHtml(g)}</button>`).join('')}
         </div>
       </div>
+      ${gradesDisabled ? '<div class="grades-locked-msg">الطالب غائب — لا يمكن تسجيل تقدير الحفظ أو المراجعة.</div>' : ''}
     </div>`;
   }).join('');
 
@@ -734,14 +859,23 @@ function renderSheikhStudents() {
     if (!stu.attendance) stu.attendance = {};
     if (!stu.attendance[date]) stu.attendance[date] = {};
     row.querySelectorAll('[data-kind="present"] button').forEach(b => b.addEventListener('click', () => {
-      stu.attendance[date].present = b.dataset.v === '1';
+      const isPresent = b.dataset.v === '1';
+      stu.attendance[date].present = isPresent;
+      // If marked absent → clear any previously recorded grades (cannot grade an absent student)
+      if (!isPresent) {
+        delete stu.attendance[date].gradeReview;
+        delete stu.attendance[date].gradeHifz;
+        delete stu.attendance[date].grade;
+      }
       sheikhSave(); renderSheikhStudents();
     }));
     row.querySelectorAll('[data-kind="gradeReview"] button').forEach(b => b.addEventListener('click', () => {
+      if (b.disabled) return;
       stu.attendance[date].gradeReview = b.dataset.v;
       sheikhSave(); renderSheikhStudents();
     }));
     row.querySelectorAll('[data-kind="gradeHifz"] button').forEach(b => b.addEventListener('click', () => {
+      if (b.disabled) return;
       stu.attendance[date].gradeHifz = b.dataset.v;
       // Cleanup legacy field
       delete stu.attendance[date].grade;

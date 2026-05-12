@@ -54,7 +54,7 @@ const I18N_DICT = {
     'page3.f.serial': 'الرقم التسلسلي',
     'page3.f.name': 'اسم الطالب',
     'page3.f.halaqa': 'اسم الحلقة',
-    'page3.ph.serial': 'مثال: 001',
+    'page3.ph.serial': 'مثال: 1',
     'page3.ph.name': 'ادخل جزء من الاسم',
     'page3.ph.halaqa': 'ادخل جزء من اسم الحلقة',
     'page3.btn.search': 'بحث',
@@ -126,7 +126,7 @@ const I18N_DICT = {
     'page3.f.serial': 'Serial number',
     'page3.f.name': 'Student name',
     'page3.f.halaqa': 'Halaqa name',
-    'page3.ph.serial': 'e.g. 001',
+    'page3.ph.serial': 'e.g. 1',
     'page3.ph.name': 'part of the name',
     'page3.ph.halaqa': 'part of the halaqa name',
     'page3.btn.search': 'Search',
@@ -276,6 +276,10 @@ const Store = {
     if ((!Array.isArray(this.data.students) || this.data.students.length === 0) && _BUNDLED.students && _BUNDLED.students.length) {
       this.data.students = JSON.parse(JSON.stringify(_BUNDLED.students));
     }
+    // Migration: strip leading zeros from student serials (legacy data)
+    (this.data.students || []).forEach(s => {
+      if (s.serial) s.serial = String(s.serial).replace(/^0+(?=\d)/, '');
+    });
   },
   save() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(this.data));
@@ -461,6 +465,94 @@ function downloadJSON(name, data) {
   setTimeout(() => URL.revokeObjectURL(a.href), 1000);
 }
 
+// ---- Reports / CSV download ----
+function downloadCSV(name, csv) {
+  // UTF-8 BOM so Excel renders Arabic correctly
+  const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = name;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
+function csvCell(v) {
+  const s = String(v == null ? '' : v);
+  if (/[",\n]/.test(s)) return '"' + s.replace(/"/g, '""') + '"';
+  return s;
+}
+function csvRow(arr) { return arr.map(csvCell).join(','); }
+
+// All working days (Sun..Thu) of a given month: y is 4-digit year, m is 1..12
+function monthWorkingDays(y, m) {
+  const out = [];
+  const last = new Date(y, m, 0).getDate();
+  for (let d = 1; d <= last; d++) {
+    const dt = new Date(y, m - 1, d);
+    const w = dt.getDay(); // 0=Sun..6=Sat
+    if (w >= 0 && w <= 4) out.push(dt); // Sun..Thu
+  }
+  return out;
+}
+function isoDateLocal(d) {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+const DAY_NAMES_AR = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+const MONTH_NAMES_AR = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+
+// Stats for one student in a given month
+function studentMonthStats(student, y, m) {
+  const days = monthWorkingDays(y, m);
+  const att = student.attendance || {};
+  const gradeCounts = { 'ممتاز': 0, 'جيد جدا': 0, 'جيد': 0, 'مقبول': 0, 'لم يحفظ': 0 };
+  let present = 0, absent = 0, marked = 0;
+  const rows = days.map(d => {
+    const key = isoDateLocal(d);
+    const rec = att[key] || {};
+    let status = '';
+    if (rec.present === true) { status = 'حاضر'; present++; marked++; }
+    else if (rec.present === false) { status = 'غائب'; absent++; marked++; }
+    const hifz = rec.gradeHifz != null ? rec.gradeHifz : (rec.grade || '');
+    if (hifz && gradeCounts[hifz] !== undefined) gradeCounts[hifz]++;
+    return {
+      date: key,
+      day: DAY_NAMES_AR[d.getDay()],
+      status,
+      review: rec.gradeReview || '',
+      hifz: hifz
+    };
+  });
+  const pct = marked > 0 ? Math.round((present / marked) * 100) : 0;
+  return { rows, totalWorkingDays: days.length, marked, present, absent, pct, gradeCounts };
+}
+
+// Generate CSV for one student
+function buildStudentMonthCSV(student, halaqa, y, m) {
+  const stats = studentMonthStats(student, y, m);
+  const lines = [];
+  lines.push(csvRow(['مركز الفوزان لتحفيظ القرآن الكريم - تقرير شهري للطالب']));
+  lines.push(csvRow(['الاسم', student.name]));
+  lines.push(csvRow(['الرقم التسلسلي', student.serial]));
+  lines.push(csvRow(['الحلقة', halaqa ? halaqa.name : '—']));
+  lines.push(csvRow(['الشهر', `${MONTH_NAMES_AR[m - 1]} ${y}`]));
+  lines.push('');
+  lines.push(csvRow(['التاريخ', 'اليوم', 'الحضور', 'تقدير المراجعة', 'تقدير الحفظ']));
+  stats.rows.forEach(r => lines.push(csvRow([r.date, r.day, r.status, r.review, r.hifz])));
+  lines.push('');
+  lines.push(csvRow(['الملخص', '']));
+  lines.push(csvRow(['أيام العمل في الشهر (الأحد - الخميس)', stats.totalWorkingDays]));
+  lines.push(csvRow(['أيام تم تسجيل تحضير فيها', stats.marked]));
+  lines.push(csvRow(['أيام الحضور', stats.present]));
+  lines.push(csvRow(['أيام الغياب', stats.absent]));
+  lines.push(csvRow(['نسبة الحضور', stats.pct + '%']));
+  lines.push('');
+  lines.push(csvRow(['توزيع تقديرات الحفظ', '']));
+  Object.entries(stats.gradeCounts).forEach(([k, v]) => lines.push(csvRow([k, v])));
+  return { csv: lines.join('\n'), stats };
+}
+
 // Resize image file to dataURL (max width 1400px, JPEG quality 0.82)
 function fileToImageDataURL(file, maxW = 1400, quality = 0.82) {
   return new Promise((resolve, reject) => {
@@ -517,5 +609,12 @@ window.escapeHtml = escapeHtml;
 window.uid = uid;
 window.formatDateTime = formatDateTime;
 window.downloadJSON = downloadJSON;
+window.downloadCSV = downloadCSV;
+window.monthWorkingDays = monthWorkingDays;
+window.isoDateLocal = isoDateLocal;
+window.studentMonthStats = studentMonthStats;
+window.buildStudentMonthCSV = buildStudentMonthCSV;
+window.MONTH_NAMES_AR = MONTH_NAMES_AR;
+window.DAY_NAMES_AR = DAY_NAMES_AR;
 window.fileToImageDataURL = fileToImageDataURL;
 window.fileToDataURL = fileToDataURL;
