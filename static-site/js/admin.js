@@ -153,15 +153,22 @@ const GH = {
     this._publishing = true; this.renderStatus();
     try {
       const c = this.cfg();
-      const sha = await this._getSha();
       const json = JSON.stringify(Store.data, null, 2);
-      const body = {
-        message: `admin: update site.json (${new Date().toISOString()})`,
-        content: this._b64Utf8(json),
-        branch: c.branch || 'main'
+      const tryPut = async () => {
+        const sha = await this._getSha();
+        const body = {
+          message: `admin: update site.json (${new Date().toISOString()})`,
+          content: this._b64Utf8(json),
+          branch: c.branch || 'main'
+        };
+        if (sha) body.sha = sha;
+        return this._ghReq('PUT', 'contents/data/site.json', body);
       };
-      if (sha) body.sha = sha;
-      const r = await this._ghReq('PUT', 'contents/data/site.json', body);
+      let r = await tryPut();
+      // 409 Conflict (stale SHA) or 422 (Sha doesn't match) → fetch fresh SHA and retry once
+      if (r.status === 409 || r.status === 422) {
+        r = await tryPut();
+      }
       if (!r.ok) {
         const txt = await r.text();
         throw new Error(`فشل النشر (${r.status}): ${txt}`);
